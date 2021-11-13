@@ -46,7 +46,7 @@ class _VoiceHomeState extends State<VoiceHome> {
 
   String resultTxtSentence = "";
   List<String> wordArray = [];
-  List<String> badWords = ['시발', '씨발', '썅년', '썅놈', '개새', '씹할', '씹빨', '쌍놈', '쌍년', '지랄', '병신', '18', '바보', '쉣'];
+  List<String> badWords = ['시발', '씨발', '썅년', '썅놈', '개새', '쌍놈', '쌍년', '지랄', '병신', '18', '바보', '쉣', '멍청'];
 
   AudioCache audioCache = AudioCache();
 
@@ -68,8 +68,6 @@ class _VoiceHomeState extends State<VoiceHome> {
       debugLogging: true,
     );
     if (hasSpeech) {
-      // Get the list of languages installed on the supporting platform so they
-      // can be displayed in the UI for selection by the user.
       _localeNames = await speech.locales();
 
       var systemLocale = await speech.systemLocale();
@@ -104,37 +102,13 @@ class _VoiceHomeState extends State<VoiceHome> {
     return false;
   }
 
-//  void startListening() {
-//    if (_isListening) {
-//      _speechRecognition.stop().then((result) => _isListening = result);
-//    }
-//    _speechRecognition.listen(locale: "ko_KR").then((result) => _isListening = result);
-//  }
-//
-//  void stopSpeechRecognition() {
-//    _isListening = false;
-//    previousText = "";
-//    resultText = "";
-//    lastWord = "";
-//    resultTxtArray.clear();
-//    _isCancel = true;
-//    count = 0;
-//
-//    doVibrate();
-//  }
-
-  // This is called each time the users wants to start a new speech
-  // recognition session
   void startListening() {
     _logEvent('start listening');
     resultText = '';
     previousText = '';
     lastWord = '';
     lastError = '';
-    // Note that `listenFor` is the maximum, not the minimun, on some
-    // recognition will be stopped before this value is reached.
-    // Similarly `pauseFor` is a maximum not a minimum and may be ignored
-    // on some devices.
+
     speech.listen(
         onResult: resultListener,
         listenFor: Duration(seconds: 180),
@@ -174,8 +148,6 @@ class _VoiceHomeState extends State<VoiceHome> {
     });
   }
 
-  /// This callback is invoked each time new recognition results are
-  /// available after `listen` is called.
   void resultListener(SpeechRecognitionResult result) {
     _logEvent(
         'Result listener final: ${result.finalResult}, words: ${result.recognizedWords}');
@@ -196,24 +168,17 @@ class _VoiceHomeState extends State<VoiceHome> {
       }
 
       if (_isFinishOnce) {
-//        resultTxtArray[count] = resultText;
         speech.stop();
         startListening();
       }
-//      else {
-//        if (previousText == '') {
-//          resultTxtArray.add(resultText);
-//        } else {
-//          resultTxtArray[count] = resultText;
-//        }
-//      }
+
     });
   }
 
   void soundLevelListener(double level) {
     minSoundLevel = min(minSoundLevel, level);
     maxSoundLevel = max(maxSoundLevel, level);
-    // _logEvent('sound level $level: $minSoundLevel - $maxSoundLevel ');
+     _logEvent('sound level $level: $minSoundLevel - $maxSoundLevel ');
     setState(() {
       this.level = level;
     });
@@ -225,7 +190,6 @@ class _VoiceHomeState extends State<VoiceHome> {
     setState(() {
       lastError = '${error.errorMsg} - ${error.permanent}';
       _isError = error.permanent;
-//      _isListening = speech.isListening;
     });
   }
 
@@ -234,7 +198,6 @@ class _VoiceHomeState extends State<VoiceHome> {
         'Received listener status: $status, listening: ${speech.isListening}');
     setState(() {
       lastStatus = '$status'; // listening, notListening, done
-//      _isListening = speech.isListening;
     });
   }
 
@@ -302,7 +265,6 @@ class _VoiceHomeState extends State<VoiceHome> {
                       }
                       wordArray.clear();
                       if (_isAvailable && !_isListening) {
-//                        count = 0;
                         resultTxtSentence = "";
                         startListening();
                         doVibrate();
