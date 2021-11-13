@@ -70,6 +70,10 @@ unlinked_spec.ds
 **/android/key.properties
 *.jks
 
+/android/app/debug
+/android/app/profile
+/android/app/release
+
 # iOS/XCode related
 **/ios/**/*.mode1v3
 **/ios/**/*.mode2v3
@@ -106,8 +110,11 @@ unlinked_spec.ds
 # Coverage
 coverage/
 
-# Symbols
+# Symbolication related
 app.*.symbols
+
+# Obfuscation related
+app.*.map.json
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
