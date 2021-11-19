@@ -14,7 +14,7 @@ class _ForgetPwState extends State<ForgetPw> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Forget Password'),
+        title: const Text('Forget Password'),
       ),
       body: Form(
         key: _formKey,
@@ -22,7 +22,7 @@ class _ForgetPwState extends State<ForgetPw> {
           children: [
             TextFormField(
               controller: _emailController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   icon: Icon(Icons.account_circle), labelText: "Email"),
               validator: (String value) {
                 if (value.isEmpty) {
@@ -35,11 +35,11 @@ class _ForgetPwState extends State<ForgetPw> {
                 onPressed: () async {
                   await FirebaseAuth.instance
                       .sendPasswordResetEmail(email: _emailController.text);
-                  final SnackBar snackBar = const SnackBar(
+                  const SnackBar snackBar = SnackBar(
                       content: Text('Check your email for password reset.'));
                   Scaffold.of(_formKey.currentContext).showSnackBar(snackBar);
                 },
-                child: Text("Reset Password"))
+                child: const Text("Reset Password"))
           ],
         ),
       ),

@@ -20,6 +20,9 @@ class MainPage extends StatelessWidget {
         children: [
           Container(
               child: Voice()),
+          Container(
+            child: Text("Test"),
+          )
         ],
       ),
     );
