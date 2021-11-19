@@ -30,21 +30,33 @@ class _VoiceHomeState extends State<VoiceHome> {
   bool _isListening = false;
   bool _isFinishOnce = false;
   bool _isError = false;
-  bool _logEvents = false;
+  bool _logEvents = true;
   double level = 0.0;
   double minSoundLevel = 50000;
   double maxSoundLevel = -50000;
 
   String previousText = '';
   String resultText = '';
+  int previousElapsedListenMillis = 0;
+  int currentElapsedListenMillis = 0;
+
   String lastWord = '';
   String lastError = '';
   String lastStatus = '';
   String _currentLocaleId = '';
   List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
+//  bool _isRecording = false;
+//  bool _isPaused = false;
+//  int _recordDuration = 0;
+//  Timer _timer;
+//  Timer _ampTimer;
+//  final _audioRecorder = Record();
+//  Amplitude _amplitude;
+
 
   String resultTxtSentence = "";
+  List<int> elapsedMillisArray = [];
   List<String> wordArray = [];
   List<String> badWords = ['시발', '씨발', '썅년', '썅놈', '개새', '쌍놈', '쌍년', '지랄', '병신', '18', '바보', '쉣', '멍청'];
 
@@ -83,6 +95,34 @@ class _VoiceHomeState extends State<VoiceHome> {
 
   int count = 0;
 
+//  Future<void> _startRecord() async {
+//    try {
+//      if (await _audioRecorder.hasPermission()) {
+//        await _audioRecorder.start();
+//
+//        bool isRecording = await _audioRecorder.isRecording();
+//        setState(() {
+//          _isRecording = isRecording;
+//          _recordDuration = 0;
+//        });
+//
+////        _startTimer();
+//      }
+//    } catch (e) {
+//      print(e);
+//    }
+//  }
+//
+//  Future<void> _stopRecord() async {
+//    _timer?.cancel();
+//    _ampTimer?.cancel();
+//    final path = await _audioRecorder.stop();
+//
+////    widget.onStop(path!);
+//
+//    setState(() => _isRecording = false);
+//  }
+
   doVibrate() async {
     if (await Vibration.hasVibrator()) {
       Vibration.vibrate();
@@ -104,6 +144,8 @@ class _VoiceHomeState extends State<VoiceHome> {
 
   void startListening() {
     _logEvent('start listening');
+    previousElapsedListenMillis = 0;
+    currentElapsedListenMillis = 0;
     resultText = '';
     previousText = '';
     lastWord = '';
@@ -156,14 +198,19 @@ class _VoiceHomeState extends State<VoiceHome> {
 
       previousText = resultText;
       resultText = '${result.recognizedWords}';
+      previousElapsedListenMillis = currentElapsedListenMillis;
+      currentElapsedListenMillis = speech.elapsedListenMillis;
 
-      lastWord = resultText.substring(previousText.length, resultText.length);
-      if (checkBadWord(lastWord)) {
-        playBeepSound();
-      }
+      if (previousElapsedListenMillis != currentElapsedListenMillis) {
+//        _logEvent('speech.hasRecognized: ${speech.hasRecognized}, speech.lastRecognizedWords: ${speech.lastRecognizedWords}');
+//        _logEvent('speech.elapsedListenMillis: ${speech.elapsedListenMillis} speech.elapsedSinceSpeechEvent: ${speech.elapsedSinceSpeechEvent} speech.listenStartedAt: ${speech.listenStartedAt} speech.lastSpeechEventAt: ${speech.lastSpeechEventAt}');
+        lastWord = resultText.substring(previousText.length, resultText.length);
+        if (checkBadWord(lastWord)) {
+          playBeepSound();
+        }
 
-      if (previousText != resultText) {
         wordArray.add(lastWord);
+        elapsedMillisArray.add(currentElapsedListenMillis - previousElapsedListenMillis);
         resultTxtSentence = resultTxtSentence + " $lastWord";
       }
 
@@ -264,6 +311,7 @@ class _VoiceHomeState extends State<VoiceHome> {
                         _isListening = false;
                       }
                       wordArray.clear();
+                      elapsedMillisArray.clear();
                       if (_isAvailable && !_isListening) {
                         resultTxtSentence = "";
                         startListening();
@@ -315,7 +363,7 @@ class _VoiceHomeState extends State<VoiceHome> {
                 "",
                 style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold, color: Colors.redAccent),
               ) : Text(
-                wordArray.join("."),
+                '[${wordArray.length} words] ${wordArray.join(".")}\n\n[${elapsedMillisArray.length} words] ${elapsedMillisArray.join("ms ")}',
                 style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold, color: Colors.grey),
               ),
             ),
