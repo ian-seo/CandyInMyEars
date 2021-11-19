@@ -9,26 +9,12 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 
-class MainPage extends StatelessWidget {
-  final String email;
-
-  MainPage({this.email});
-
+class Voice extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: VoiceHome(),
-    );
-  }
+  _VoiceState createState() => _VoiceState();
 }
 
-class VoiceHome extends StatefulWidget {
-  @override
-  _VoiceHomeState createState() => _VoiceHomeState();
-}
-
-class _VoiceHomeState extends State<VoiceHome> {
+class _VoiceState extends State<Voice> {
   bool _isAvailable = false;
   bool _isListening = false;
   bool _isFinishOnce = false;
@@ -241,9 +227,7 @@ class _VoiceHomeState extends State<VoiceHome> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: Column(
+    return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -379,8 +363,6 @@ class _VoiceHomeState extends State<VoiceHome> {
               child: const Text("Logout"),
             )
           ],
-        ),
-      ),
-    );
+        );
   }
 }

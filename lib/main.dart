@@ -1,5 +1,5 @@
-import 'package:candy_in_my_ears/screens/candy.dart';
 import 'package:candy_in_my_ears/screens/login.dart';
+import 'package:candy_in_my_ears/screens/main_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
