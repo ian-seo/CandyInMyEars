@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "302386470004",
+    "project_id": "candy-in-my-ears",
+    "storage_bucket": "candy-in-my-ears.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:302386470004:android:aa080bb5c39e589d5dc521",
+        "android_client_info": {
+          "package_name": "com.example.candy_in_my_ears"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "302386470004-hedv5dbgm7hfcka0pbk4ap01uv0jafjl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9If8k7sJZiyeqCWvXAGvamMRCOOQ7E50"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "302386470004-hedv5dbgm7hfcka0pbk4ap01uv0jafjl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

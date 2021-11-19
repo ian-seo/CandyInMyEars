@@ -29,14 +29,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  provider: ^6.0.1
+  firebase_auth: ^3.2.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   audioplayers: ^0.20.1
   vibration: ^1.7.3
-  speech_to_text: ^5.1.1
+  speech_to_text: 5.1.1
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +65,9 @@ flutter:
   assets:
     - assets/beep_sound/
     - assets/images/
+    - assets/Curve-Loading.gif
+    - assets/7pv.gif
+    - assets/candy.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
