@@ -30,7 +30,7 @@ class _VoiceHomeState extends State<VoiceHome> {
   bool _isListening = false;
   bool _isFinishOnce = false;
   bool _isError = false;
-  bool _logEvents = false;
+  bool _logEvents = true;
   double level = 0.0;
   double minSoundLevel = 50000;
   double maxSoundLevel = -50000;
@@ -43,6 +43,15 @@ class _VoiceHomeState extends State<VoiceHome> {
   String _currentLocaleId = '';
   List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
+
+//  bool _isRecording = false;
+//  bool _isPaused = false;
+//  int _recordDuration = 0;
+//  Timer _timer;
+//  Timer _ampTimer;
+//  final _audioRecorder = Record();
+//  Amplitude _amplitude;
+
 
   String resultTxtSentence = "";
   List<String> wordArray = [];
@@ -82,6 +91,34 @@ class _VoiceHomeState extends State<VoiceHome> {
   }
 
   int count = 0;
+
+//  Future<void> _startRecord() async {
+//    try {
+//      if (await _audioRecorder.hasPermission()) {
+//        await _audioRecorder.start();
+//
+//        bool isRecording = await _audioRecorder.isRecording();
+//        setState(() {
+//          _isRecording = isRecording;
+//          _recordDuration = 0;
+//        });
+//
+////        _startTimer();
+//      }
+//    } catch (e) {
+//      print(e);
+//    }
+//  }
+//
+//  Future<void> _stopRecord() async {
+//    _timer?.cancel();
+//    _ampTimer?.cancel();
+//    final path = await _audioRecorder.stop();
+//
+////    widget.onStop(path!);
+//
+//    setState(() => _isRecording = false);
+//  }
 
   doVibrate() async {
     if (await Vibration.hasVibrator()) {
@@ -157,12 +194,13 @@ class _VoiceHomeState extends State<VoiceHome> {
       previousText = resultText;
       resultText = '${result.recognizedWords}';
 
-      lastWord = resultText.substring(previousText.length, resultText.length);
-      if (checkBadWord(lastWord)) {
-        playBeepSound();
-      }
-
       if (previousText != resultText) {
+        _logEvent('speech.hasRecognized: ${speech.hasRecognized}, speech.lastRecognizedWords: ${speech.lastRecognizedWords}');
+        lastWord = resultText.substring(previousText.length, resultText.length);
+        if (checkBadWord(lastWord)) {
+          playBeepSound();
+        }
+
         wordArray.add(lastWord);
         resultTxtSentence = resultTxtSentence + " $lastWord";
       }
