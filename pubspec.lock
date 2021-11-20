@@ -176,7 +176,7 @@ packages:
       name: path_provider_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.7"
+    version: "2.0.8"
   path_provider_ios:
     dependency: transitive
     description:
@@ -257,7 +257,7 @@ packages:
     description:
       path: speech_to_text
       ref: HEAD
-      resolved-ref: "540413e8252b3ace8412efa7654f02687c118e4c"
+      resolved-ref: f2b61065c6c0dd85eef4b81c17615c6103b17ce4
       url: "https://github.com/ian-seo/speech_to_text.git"
     source: git
     version: "5.2.0"

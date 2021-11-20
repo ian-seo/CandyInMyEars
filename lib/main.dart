@@ -55,6 +55,15 @@ class _VoiceHomeState extends State<VoiceHome> {
 //  Amplitude _amplitude;
 
 
+//  bool _isRecording = false;
+//  bool _isPaused = false;
+//  int _recordDuration = 0;
+//  Timer _timer;
+//  Timer _ampTimer;
+//  final _audioRecorder = Record();
+//  Amplitude _amplitude;
+
+
   String resultTxtSentence = "";
   List<int> elapsedMillisArray = [];
   List<String> wordArray = [];
