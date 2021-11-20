@@ -18,10 +18,10 @@ class MainPage extends StatelessWidget {
         title: Text("Candy In My Ears"),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Container(child: MyHomePage()),
+          MyHomePage(),
           Container(
               child: ElevatedButton(
             onPressed: () {

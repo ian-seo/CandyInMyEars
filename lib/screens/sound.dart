@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:candy_in_my_ears/data/storage.dart';
@@ -5,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -14,6 +16,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String viewTxt = "Recorde Player";
   final Storage storage = Storage();
+  final database = FirebaseDatabase.instance.reference();
   FlutterSoundRecorder myRecorder;
   FlutterSoundPlayer myPlayer;
   String filePath;
@@ -21,6 +24,9 @@ class _MyHomePageState extends State<MyHomePage> {
   String localFileName;
   bool check = false;
   bool playCheck = false;
+  double _mVolume1 = 100.0;
+  int _firstInterval = 0;
+  int _secondInterval = 0;
 
   GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
@@ -37,6 +43,20 @@ class _MyHomePageState extends State<MyHomePage> {
     await myRecorder.openAudioSession();
     await myRecorder.setSubscriptionDuration(Duration(milliseconds: 10));
     await myPlayer.openAudioSession();
+    _activateListners();
+  }
+
+  void _activateListners() {
+    database.child("test").child("first").onValue.listen((event){
+      setState(() {
+        _firstInterval = event.snapshot.value;
+      });
+    });
+    database.child("test").child("second").onValue.listen((event){
+      setState(() {
+        _secondInterval = event.snapshot.value;
+      });
+    });
   }
 
   @override
@@ -57,12 +77,23 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
+  Future<void> setVolume(double v) async // v is between 0.0 and 100.0
+  {
+    v = v > 100.0 ? 100.0 : v;
+    _mVolume1 = v;
+    setState(() {});
+    //await _mPlayer!.setVolume(v / 100, fadeDuration: Duration(milliseconds: 5000));
+    await myPlayer.setVolume(
+      v / 100,
+    );
+  }
+
   Future<void> _recodeFunc() async {
-    setState(() {
-      viewTxt = "Recoding ~";
-    });
-    File outputFile = File('$filePath/$fileName');
     if (!check) {
+      setState(() {
+        viewTxt = "Recoding...";
+      });
+      File outputFile = File('$filePath/$fileName');
       await myRecorder.startRecorder(
           toFile: outputFile.path, codec: Codec.aacADTS);
       print("START");
@@ -80,6 +111,8 @@ class _MyHomePageState extends State<MyHomePage> {
     await storage.uploadFile(filePath, fileName).then((value) =>
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("file uploaded"))));
+    await database.child('/test').set({'first':2000,'second':3000});
+
     setState(() {
       viewTxt = "Recorde Player";
     });
@@ -98,13 +131,18 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           playCheck = !playCheck;
         });
-        await this.myPlayer.startPlayer(
+        this.myPlayer.startPlayer(
             fromDataBuffer: dataBuffer,
             codec: Codec.aacADTS,
             whenFinished: () {
               print('Play finished');
               setState(() {});
+              playCheck = !playCheck;
             });
+        print('first interval: $_firstInterval');
+        print('second interval: $_secondInterval');
+        Future.delayed(Duration(milliseconds: _firstInterval), () {}).then((value) => setVolume(5));
+        Future.delayed(Duration(milliseconds: _secondInterval), () {}).then((value) => setVolume(100));
       } catch (e) {
         print(" NO Data");
         ScaffoldMessenger.of(context)
@@ -124,12 +162,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Text(
           viewTxt,
           style: Theme.of(context).textTheme.headline4,
         ),
         Container(
+          width: 1000,
           margin: EdgeInsets.all(20.0),
           child: FloatingActionButton(
               onPressed: _recodeFunc,

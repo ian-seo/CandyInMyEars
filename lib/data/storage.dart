@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class Storage {
   firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
+  final database = FirebaseDatabase.instance.reference();
 
   Future<void> listExample() async {
 
@@ -27,6 +27,7 @@ class Storage {
     } on firebase_core.FirebaseException catch (e) {
       print(e);
     }
+
   }
 
   Future<void> downloadFile(String filePath, String fileName, String localFileName) async {

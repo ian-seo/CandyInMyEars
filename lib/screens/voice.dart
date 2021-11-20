@@ -19,10 +19,10 @@ class _VoiceState extends State<Voice> {
   bool _isListening = false;
   bool _isFinishOnce = false;
   bool _isError = false;
-  bool _logEvents = false;
+  bool _logEvents = true;
   double level = 0.0;
-  double minSoundLevel = 50000;
-  double maxSoundLevel = -50000;
+  double minSoundLevel = 50.0;
+  double maxSoundLevel = -50.0;
 
   String previousText = '';
   String resultText = '';
@@ -182,7 +182,7 @@ class _VoiceState extends State<Voice> {
   void soundLevelListener(double level) {
     minSoundLevel = min(minSoundLevel, level);
     maxSoundLevel = max(maxSoundLevel, level);
-    _logEvent('sound level $level: $minSoundLevel - $maxSoundLevel ');
+    _logEvent('sound level $level: $minSoundLevel ~ $maxSoundLevel ');
     setState(() {
       this.level = level;
     });
