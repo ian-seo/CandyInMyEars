@@ -18,13 +18,8 @@ class Storage {
     });
   }
 
-  Future<void> uploadFile(String fileName) async {
-    var data = await rootBundle.load('assets/$fileName');
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String filePath = '${appDocDir.absolute.path}/$fileName';
-    await File(filePath).writeAsBytes(
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
-    File file = File(filePath);
+  Future<void> uploadFile(String filePath, String fileName) async {
+    File file = File('$filePath/$fileName');
     try {
       await firebase_storage.FirebaseStorage.instance
           .ref('test/$fileName')

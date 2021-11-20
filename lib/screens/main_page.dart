@@ -1,4 +1,5 @@
 import 'package:candy_in_my_ears/data/storage.dart';
+import 'package:candy_in_my_ears/screens/sound.dart';
 import 'package:candy_in_my_ears/screens/voice.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +21,13 @@ class MainPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Container(child: Voice()),
+          Container(child: MyHomePage()),
           Container(
               child: ElevatedButton(
             onPressed: () {
-              //storage.listExample();
-              storage
-                  .uploadFile("test.png")
-                  .then((value) => print('Done'));
+              storage.listExample();
             },
-            child: Text('Upload File'),
+            child: Text('Check Uploaded Files'),
           ))
         ],
       ),
