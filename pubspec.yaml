@@ -40,7 +40,7 @@ dependencies:
     git:
       url: https://github.com/ian-seo/speech_to_text.git
       path: speech_to_text
-#  record: ^3.0.0
+  record: ^3.0.0
 
 
 dev_dependencies:

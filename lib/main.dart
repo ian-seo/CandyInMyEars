@@ -7,13 +7,16 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
+import 'package:record/record.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: VoiceHome(),
     );
@@ -21,6 +24,10 @@ class MyApp extends StatelessWidget {
 }
 
 class VoiceHome extends StatefulWidget {
+  final void Function(String path) onStop;
+
+  const VoiceHome({@required this.onStop});
+
   @override
   _VoiceHomeState createState() => _VoiceHomeState();
 }
@@ -46,22 +53,13 @@ class _VoiceHomeState extends State<VoiceHome> {
   String _currentLocaleId = '';
   List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
-//  bool _isRecording = false;
-//  bool _isPaused = false;
-//  int _recordDuration = 0;
-//  Timer _timer;
-//  Timer _ampTimer;
-//  final _audioRecorder = Record();
-//  Amplitude _amplitude;
-
-
-//  bool _isRecording = false;
-//  bool _isPaused = false;
-//  int _recordDuration = 0;
-//  Timer _timer;
-//  Timer _ampTimer;
-//  final _audioRecorder = Record();
-//  Amplitude _amplitude;
+  bool _isRecording = false;
+  bool _isPaused = false;
+  int _recordDuration = 0;
+  Timer _timer;
+  Timer _ampTimer;
+  final _audioRecorder = Record();
+  Amplitude _amplitude;
 
 
   String resultTxtSentence = "";
@@ -104,33 +102,33 @@ class _VoiceHomeState extends State<VoiceHome> {
 
   int count = 0;
 
-//  Future<void> _startRecord() async {
-//    try {
-//      if (await _audioRecorder.hasPermission()) {
-//        await _audioRecorder.start();
-//
-//        bool isRecording = await _audioRecorder.isRecording();
-//        setState(() {
-//          _isRecording = isRecording;
-//          _recordDuration = 0;
-//        });
-//
-////        _startTimer();
-//      }
-//    } catch (e) {
-//      print(e);
-//    }
-//  }
-//
-//  Future<void> _stopRecord() async {
-//    _timer?.cancel();
-//    _ampTimer?.cancel();
-//    final path = await _audioRecorder.stop();
-//
-////    widget.onStop(path!);
-//
-//    setState(() => _isRecording = false);
-//  }
+  Future<void> _startRecord() async {
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        await _audioRecorder.start();
+
+        bool isRecording = await _audioRecorder.isRecording();
+        setState(() {
+          _isRecording = isRecording;
+          _recordDuration = 0;
+        });
+
+//        _startTimer();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> _stopRecord() async {
+    _timer?.cancel();
+    _ampTimer?.cancel();
+    final path = await _audioRecorder.stop();
+
+//    widget.onStop(path!);
+
+    setState(() => _isRecording = false);
+  }
 
   doVibrate() async {
     if (await Vibration.hasVibrator()) {
@@ -211,15 +209,17 @@ class _VoiceHomeState extends State<VoiceHome> {
       currentElapsedListenMillis = speech.elapsedListenMillis;
 
       if (previousElapsedListenMillis != currentElapsedListenMillis) {
-//        _logEvent('speech.hasRecognized: ${speech.hasRecognized}, speech.lastRecognizedWords: ${speech.lastRecognizedWords}');
-//        _logEvent('speech.elapsedListenMillis: ${speech.elapsedListenMillis} speech.elapsedSinceSpeechEvent: ${speech.elapsedSinceSpeechEvent} speech.listenStartedAt: ${speech.listenStartedAt} speech.lastSpeechEventAt: ${speech.lastSpeechEventAt}');
+        _logEvent('speech.hasRecognized: ${speech.hasRecognized}, speech.lastRecognizedWords: ${speech.lastRecognizedWords}');
+        _logEvent('speech.elapsedListenMillis: ${speech.elapsedListenMillis} speech.elapsedSinceSpeechEvent: ${speech.elapsedSinceSpeechEvent} speech.listenStartedAt: ${speech.listenStartedAt} speech.lastSpeechEventAt: ${speech.lastSpeechEventAt}');
         lastWord = resultText.substring(previousText.length, resultText.length);
         if (checkBadWord(lastWord)) {
           playBeepSound();
         }
 
         wordArray.add(lastWord);
-        elapsedMillisArray.add(currentElapsedListenMillis - previousElapsedListenMillis);
+        if (_logEvents) {
+          elapsedMillisArray.add(currentElapsedListenMillis - previousElapsedListenMillis);
+        }
         resultTxtSentence = resultTxtSentence + " $lastWord";
       }
 
