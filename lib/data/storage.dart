@@ -28,4 +28,15 @@ class Storage {
       print(e);
     }
   }
+
+  Future<void> downloadFile(String filePath, String fileName, String localFileName) async {
+    File file = File('$filePath/$localFileName');
+    try {
+      await firebase_storage.FirebaseStorage.instance
+          .ref('test/$fileName')
+          .writeToFile(file);
+    } on firebase_core.FirebaseException catch (e) {
+      print(e);
+    }
+  }
 }

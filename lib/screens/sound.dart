@@ -18,6 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   FlutterSoundPlayer myPlayer;
   String filePath;
   String fileName;
+  String localFileName;
   bool check = false;
   bool playCheck = false;
 
@@ -27,7 +28,9 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     fileName = 'temp.aac';
-    filePath = '/sdcard/Download';
+    localFileName = 'candy.aac';
+    Directory tempDir = await getTemporaryDirectory();
+    filePath = tempDir.path;
 
     myRecorder = FlutterSoundRecorder();
     myPlayer = FlutterSoundPlayer();
@@ -74,14 +77,21 @@ class _MyHomePageState extends State<MyHomePage> {
       viewTxt = "await...";
     });
     await myRecorder.stopRecorder();
-    await storage.uploadFile(filePath, fileName);
+    await storage.uploadFile(filePath, fileName).then((value) =>
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("file uploaded"))));
+    setState(() {
+      viewTxt = "Recorde Player";
+    });
     return;
   }
 
   Future<void> playMyFile() async {
     if (!playCheck) {
-      Directory tempDir = await getTemporaryDirectory();
-      File inFile = File('$filePath/$fileName');
+      await storage.downloadFile(filePath, fileName, localFileName).then(
+          (value) => ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("file downloaded"))));
+      File inFile = File('$filePath/$localFileName');
       try {
         Uint8List dataBuffer = await inFile.readAsBytes();
         print("dataBuffer $dataBuffer");
@@ -97,9 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
             });
       } catch (e) {
         print(" NO Data");
-        _key.currentState.showSnackBar(SnackBar(
-          content: Text("NO DATA!!!!!!"),
-        ));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("No Data")));
       }
       return;
     }
