@@ -2,6 +2,8 @@
     package="com.example.candy_in_my_ears">
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <queries>
         <intent>
             <action android:name="android.speech.RecognitionService" />

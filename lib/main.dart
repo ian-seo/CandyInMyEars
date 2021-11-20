@@ -8,6 +8,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 import 'package:record/record.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(const MyApp());
 
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: VoiceHome(),
     );
@@ -24,15 +25,13 @@ class MyApp extends StatelessWidget {
 }
 
 class VoiceHome extends StatefulWidget {
-  final void Function(String path) onStop;
-
-  const VoiceHome({@required this.onStop});
-
   @override
   _VoiceHomeState createState() => _VoiceHomeState();
 }
 
 class _VoiceHomeState extends State<VoiceHome> {
+
+  // Speech-to-text variables //
   bool _isAvailable = false;
   bool _isListening = false;
   bool _isFinishOnce = false;
@@ -53,14 +52,6 @@ class _VoiceHomeState extends State<VoiceHome> {
   String _currentLocaleId = '';
   List<LocaleName> _localeNames = [];
   final SpeechToText speech = SpeechToText();
-  bool _isRecording = false;
-  bool _isPaused = false;
-  int _recordDuration = 0;
-  Timer _timer;
-  Timer _ampTimer;
-  final _audioRecorder = Record();
-  Amplitude _amplitude;
-
 
   String resultTxtSentence = "";
   List<int> elapsedMillisArray = [];
@@ -69,6 +60,17 @@ class _VoiceHomeState extends State<VoiceHome> {
   int validWordCount = 0;
   List<String> badWords = ['시발', '씨발', '썅년', '썅놈', '개새', '쌍놈', '쌍년', '지랄', '병신', '18', '바보', '쉣', '멍청'];
 
+  // Recording variables //
+  bool _isRecording = false;
+  bool _isPaused = false;
+  int _recordDuration = 0;
+  Timer _timer;
+  Timer _ampTimer;
+  final _audioRecorder = Record();
+  Amplitude _amplitude;
+  String recordUriPath = '';
+
+  // Audio play variables
   AudioCache audioCache = AudioCache();
 
   @override
@@ -102,12 +104,43 @@ class _VoiceHomeState extends State<VoiceHome> {
     });
   }
 
-  int count = 0;
+  void _startTimer() {
+    _timer?.cancel();
+    _ampTimer?.cancel();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      setState(() => _recordDuration++);
+    });
+
+    _ampTimer =
+        Timer.periodic(const Duration(milliseconds: 200), (Timer t) async {
+          _amplitude = await _audioRecorder.getAmplitude();
+          setState(() {});
+        });
+  }
+
+  Future<String> get _localPath async {
+    final directory = await getExternalStorageDirectory();
+
+    return directory.path;
+  }
 
   Future<void> _startRecord() async {
     try {
       if (await _audioRecorder.hasPermission()) {
-        await _audioRecorder.start();
+        final path = await _localPath;
+
+        DateTime now = new DateTime.now();
+        String date = '${now.year}-${now.month}-${now.day}_${now.hour}h${now.minute}m${now.second}s';
+
+        _logEvent('start recording path - $date:$path');
+
+        await _audioRecorder.start(
+          path: '$path/recorded_$date.m4a', // required
+          encoder: AudioEncoder.AAC, // by default
+          bitRate: 128000, // by default
+          samplingRate: 44100, // by default
+        );
 
         bool isRecording = await _audioRecorder.isRecording();
         setState(() {
@@ -115,7 +148,7 @@ class _VoiceHomeState extends State<VoiceHome> {
           _recordDuration = 0;
         });
 
-//        _startTimer();
+        _startTimer();
       }
     } catch (e) {
       print(e);
@@ -125,9 +158,8 @@ class _VoiceHomeState extends State<VoiceHome> {
   Future<void> _stopRecord() async {
     _timer?.cancel();
     _ampTimer?.cancel();
-    final path = await _audioRecorder.stop();
-
-//    widget.onStop(path!);
+    recordUriPath  = await _audioRecorder.stop();
+    _logEvent('stop recording path:$recordUriPath');
 
     setState(() => _isRecording = false);
   }
@@ -160,6 +192,10 @@ class _VoiceHomeState extends State<VoiceHome> {
     lastWord = '';
     lastError = '';
 
+//    _startRecord();
+    _isListening = true;
+    _isError = false;
+
     speech.listen(
         onResult: resultListener,
         listenFor: Duration(seconds: 180),
@@ -172,6 +208,7 @@ class _VoiceHomeState extends State<VoiceHome> {
     setState(() {
       _isListening = true;
       _isError = false;
+
     });
   }
 
@@ -181,18 +218,7 @@ class _VoiceHomeState extends State<VoiceHome> {
     speech.stop();
     setState(() {
       level = 0.0;
-      _isListening = false;
-      _isError = false;
-      resultTxtSentence = "";
-    });
-  }
-
-  void cancelListening() {
-    _logEvent('cancel');
-    doVibrate();
-    speech.cancel();
-    setState(() {
-      level = 0.0;
+//      _stopRecord();
       _isListening = false;
       _isError = false;
       resultTxtSentence = "";
@@ -327,6 +353,7 @@ class _VoiceHomeState extends State<VoiceHome> {
                       wordArray.clear();
                       validWordArray.clear();
                       validWordCount = 0;
+                      recordUriPath = '';
                       elapsedMillisArray.clear();
                       if (_isAvailable && !_isListening) {
                         resultTxtSentence = "";
