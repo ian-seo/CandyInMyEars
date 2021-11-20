@@ -65,6 +65,8 @@ class _VoiceHomeState extends State<VoiceHome> {
   String resultTxtSentence = "";
   List<int> elapsedMillisArray = [];
   List<String> wordArray = [];
+  List<bool> validWordArray = [];
+  int validWordCount = 0;
   List<String> badWords = ['시발', '씨발', '썅년', '썅놈', '개새', '쌍놈', '쌍년', '지랄', '병신', '18', '바보', '쉣', '멍청'];
 
   AudioCache audioCache = AudioCache();
@@ -217,6 +219,9 @@ class _VoiceHomeState extends State<VoiceHome> {
         }
 
         wordArray.add(lastWord);
+        bool isValid = lastWord != '';
+        validWordArray.add(isValid);
+        if (isValid) validWordCount++;
         if (_logEvents) {
           elapsedMillisArray.add(currentElapsedListenMillis - previousElapsedListenMillis);
         }
@@ -320,6 +325,8 @@ class _VoiceHomeState extends State<VoiceHome> {
                         _isListening = false;
                       }
                       wordArray.clear();
+                      validWordArray.clear();
+                      validWordCount = 0;
                       elapsedMillisArray.clear();
                       if (_isAvailable && !_isListening) {
                         resultTxtSentence = "";
@@ -372,7 +379,7 @@ class _VoiceHomeState extends State<VoiceHome> {
                 "",
                 style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold, color: Colors.redAccent),
               ) : Text(
-                '[${wordArray.length} words] ${wordArray.join(".")}\n\n[${elapsedMillisArray.length} words] ${elapsedMillisArray.join("ms ")}',
+                '[${validWordCount.toString()} words] ${wordArray.join(".")}\n\n[${validWordCount.toString()} words] ${elapsedMillisArray.join("ms ")}ms',
                 style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold, color: Colors.grey),
               ),
             ),
