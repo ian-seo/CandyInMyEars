@@ -8,6 +8,7 @@
 import 'package:audioplayers/web/audioplayers_web.dart';
 import 'package:firebase_auth_web/firebase_auth_web.dart';
 import 'package:firebase_core_web/firebase_core_web.dart';
+import 'package:firebase_storage_web/firebase_storage_web.dart';
 import 'package:speech_to_text/speech_to_text_web.dart';
 import 'package:vibration_web/vibration_web.dart';
 
@@ -18,6 +19,7 @@ void registerPlugins(Registrar registrar) {
   AudioplayersPlugin.registerWith(registrar);
   FirebaseAuthWeb.registerWith(registrar);
   FirebaseCoreWeb.registerWith(registrar);
+  FirebaseStorageWeb.registerWith(registrar);
   SpeechToTextPlugin.registerWith(registrar);
   VibrationWebPlugin.registerWith(registrar);
   registrar.registerMessageHandler();

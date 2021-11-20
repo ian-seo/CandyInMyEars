@@ -29,6 +29,13 @@
             {
               "client_id": "302386470004-hedv5dbgm7hfcka0pbk4ap01uv0jafjl.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "302386470004-34q17e3sd8ifvijdshmp5cjg7n1m7pcu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.candyInMyEars"
+              }
             }
           ]
         }
