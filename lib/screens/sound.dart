@@ -13,8 +13,10 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+const String candyInMyEars = "Candy In My Ears";
+
 class _MyHomePageState extends State<MyHomePage> {
-  String viewTxt = "Recorde Player";
+  String viewTxt = candyInMyEars;
   final Storage storage = Storage();
   final database = FirebaseDatabase.instance.reference();
   FlutterSoundRecorder myRecorder;
@@ -27,8 +29,9 @@ class _MyHomePageState extends State<MyHomePage> {
   double _mVolume1 = 100.0;
   int _firstInterval = 0;
   int _secondInterval = 0;
-
-  GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
+  int _thirdInterval = 0;
+  int _forthInterval = 0;
+  double _volumeControl = 0;
 
   void startInit() async {
     super.initState();
@@ -47,14 +50,29 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _activateListners() {
-    database.child("test").child("first").onValue.listen((event){
+    database.child("test").child("first").onValue.listen((event) {
       setState(() {
         _firstInterval = event.snapshot.value;
       });
     });
-    database.child("test").child("second").onValue.listen((event){
+    database.child("test").child("second").onValue.listen((event) {
       setState(() {
         _secondInterval = event.snapshot.value;
+      });
+    });
+    database.child("test").child("third").onValue.listen((event) {
+      setState(() {
+        _thirdInterval = event.snapshot.value;
+      });
+    });
+    database.child("test").child("forth").onValue.listen((event) {
+      setState(() {
+        _forthInterval = event.snapshot.value;
+      });
+    });
+    database.child("test").child("volume").onValue.listen((event) {
+      setState(() {
+        _volumeControl = double.parse(event.snapshot.value.toString());
       });
     });
   }
@@ -111,10 +129,10 @@ class _MyHomePageState extends State<MyHomePage> {
     await storage.uploadFile(filePath, fileName).then((value) =>
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("file uploaded"))));
-    await database.child('/test').set({'first':2000,'second':3000});
+    // await database.child('/test').set({'first': 2000, 'second': 3000});
 
     setState(() {
-      viewTxt = "Recorde Player";
+      viewTxt = candyInMyEars;
     });
     return;
   }
@@ -141,8 +159,14 @@ class _MyHomePageState extends State<MyHomePage> {
             });
         print('first interval: $_firstInterval');
         print('second interval: $_secondInterval');
-        Future.delayed(Duration(milliseconds: _firstInterval), () {}).then((value) => setVolume(5));
-        Future.delayed(Duration(milliseconds: _secondInterval), () {}).then((value) => setVolume(100));
+        Future.delayed(Duration(milliseconds: _firstInterval), () {})
+            .then((value) => setVolume(_volumeControl));
+        Future.delayed(Duration(milliseconds: _secondInterval), () {})
+            .then((value) => setVolume(100));
+        Future.delayed(Duration(milliseconds: _thirdInterval), () {})
+            .then((value) => setVolume(_volumeControl));
+        Future.delayed(Duration(milliseconds: _forthInterval), () {})
+            .then((value) => setVolume(100));
       } catch (e) {
         print(" NO Data");
         ScaffoldMessenger.of(context)
@@ -160,6 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -169,38 +194,45 @@ class _MyHomePageState extends State<MyHomePage> {
           style: Theme.of(context).textTheme.headline4,
         ),
         Container(
-          width: 1000,
-          margin: EdgeInsets.all(20.0),
-          child: FloatingActionButton(
-              onPressed: _recodeFunc,
-              tooltip: 'Increment',
-              child: check ? Icon(Icons.stop) : Icon(Icons.mic)),
+          height: 8,
         ),
-        Container(
-          padding: EdgeInsets.all(20.0),
-          decoration: BoxDecoration(
-              border: Border.all(width: 2.0, color: Colors.grey[200]),
-              borderRadius: BorderRadius.circular(15.0)),
-          child: Column(
-            children: <Widget>[
-              Text("Play Controller\n(Recorde File)"),
-              IconButton(
-                icon: playCheck
-                    ? Icon(Icons.stop)
-                    : Icon(Icons.play_circle_filled),
+        Padding(
+          padding: EdgeInsets.only(left: size.width*0.3,right: size.width*0.3),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              FloatingActionButton(
+                  heroTag: "mic",
+                  onPressed: _recodeFunc,
+                  child: check ? Icon(Icons.stop) : Icon(Icons.mic)),
+              FloatingActionButton(
+                heroTag: "play",
+                child:
+                    playCheck ? Icon(Icons.stop) : Icon(Icons.play_circle_filled),
                 onPressed: () async {
                   await playMyFile();
                 },
               ),
-              FlatButton(
-                onPressed: () {
-                  FirebaseAuth.instance.signOut();
-                },
-                child: const Text("Logout"),
-              )
             ],
           ),
-        )
+        ),
+        Container(
+          height: size.height * 0.1,
+        ),
+        Container(
+            padding: EdgeInsets.all(0.1),
+            decoration: BoxDecoration(
+                border: Border.all(width: 2.0, color: Colors.grey[200]),
+                borderRadius: BorderRadius.circular(50.0)),
+            child: FlatButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+              child: const Text("Logout"),
+            )),
+        Container(
+          height: size.height * 0.02,
+        ),
       ],
     );
   }

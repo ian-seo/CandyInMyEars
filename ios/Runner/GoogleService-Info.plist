@@ -30,5 +30,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:302386470004:ios:32358adbb2c2d8d65dc521</string>
+	<key>DATABASE_URL</key>
+	<string>https://candy-in-my-ears-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>
