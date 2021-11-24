@@ -14,6 +14,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 const String candyInMyEars = "Candy In My Ears";
+const String refConst = "badwords";
 
 class _MyHomePageState extends State<MyHomePage> {
   String viewTxt = candyInMyEars;
@@ -36,26 +37,32 @@ class _MyHomePageState extends State<MyHomePage> {
   void startInit() async {
     super.initState();
 
-    fileName = 'temp.aac';
-    localFileName = 'candy.aac';
+    fileName = 'temp.wav';
+    localFileName = 'candy.wav';
     Directory tempDir = await getTemporaryDirectory();
     filePath = tempDir.path;
 
     myRecorder = FlutterSoundRecorder();
     myPlayer = FlutterSoundPlayer();
     await myRecorder.openAudioSession();
-    await myRecorder.setSubscriptionDuration(Duration(milliseconds: 10));
     await myPlayer.openAudioSession();
     _activateListners();
   }
 
   void _activateListners() {
-    database.child("test").child("first").onValue.listen((event) {
+    database.child(refConst).child("0").onValue.listen((event) {
       setState(() {
-        _firstInterval = event.snapshot.value;
+        _firstInterval = event.snapshot.value['start'];
+        _secondInterval = event.snapshot.value['end'];
       });
     });
-    database.child("test").child("second").onValue.listen((event) {
+    database.child(refConst).child("1").onValue.listen((event) {
+      setState(() {
+        _thirdInterval = event.snapshot.value['start'];
+        _forthInterval = event.snapshot.value['end'];
+      });
+    });
+/*    database.child(refConst).child("second").onValue.listen((event) {
       setState(() {
         _secondInterval = event.snapshot.value;
       });
@@ -74,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _volumeControl = double.parse(event.snapshot.value.toString());
       });
-    });
+    });*/
   }
 
   @override
@@ -113,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       File outputFile = File('$filePath/$fileName');
       await myRecorder.startRecorder(
-          toFile: outputFile.path, codec: Codec.aacADTS);
+          toFile: outputFile.path, codec: Codec.pcm16WAV);
       print("START");
       setState(() {
         check = !check;
@@ -151,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         this.myPlayer.startPlayer(
             fromDataBuffer: dataBuffer,
-            codec: Codec.aacADTS,
+            codec: Codec.pcm16WAV,
             whenFinished: () {
               print('Play finished');
               setState(() {});
@@ -197,7 +204,8 @@ class _MyHomePageState extends State<MyHomePage> {
           height: 8,
         ),
         Padding(
-          padding: EdgeInsets.only(left: size.width*0.3,right: size.width*0.3),
+          padding:
+              EdgeInsets.only(left: size.width * 0.3, right: size.width * 0.3),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -207,8 +215,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: check ? Icon(Icons.stop) : Icon(Icons.mic)),
               FloatingActionButton(
                 heroTag: "play",
-                child:
-                    playCheck ? Icon(Icons.stop) : Icon(Icons.play_circle_filled),
+                child: playCheck
+                    ? Icon(Icons.stop)
+                    : Icon(Icons.play_circle_filled),
                 onPressed: () async {
                   await playMyFile();
                 },
