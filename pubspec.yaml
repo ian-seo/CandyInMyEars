@@ -43,6 +43,7 @@ dependencies:
   vibration: ^1.7.3
   speech_to_text: 5.1.1
   validators: ^3.0.0
+  google_speech: ^2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +74,7 @@ flutter:
     - assets/Curve-Loading.gif
     - assets/7pv.gif
     - assets/candy.gif
+    - assets/candy-in-my-ears-bcceec5d21d4.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
