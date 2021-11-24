@@ -17,6 +17,7 @@ class CandyInMyEars extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Splash(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

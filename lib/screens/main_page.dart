@@ -21,18 +21,18 @@ class MainPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-              alignment: Alignment.topRight,
-              child: FloatingActionButton(
-                heroTag: "settings",
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Settings()));
-                },
-                child: Icon(Icons.settings_sharp),
-              )),
+//          Container(
+//              alignment: Alignment.topRight,
+//              child: Float  ingActionButton(
+//                heroTag: "settings",
+//                onPressed: () {
+//                  Navigator.push(
+//                      context,
+//                      MaterialPageRoute(
+//                          builder: (context) => Settings()));
+//                },
+//                child: Icon(Icons.settings_sharp),
+//              )),
           _candyImage,
           MyHomePage(),
         ],
