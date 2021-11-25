@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_speech/google_speech.dart';
 import 'package:google_speech/speech_client_authenticator.dart';
+//import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -35,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final int MILLISECONDS = 1000;
   final double VOLUME_DOWN = 5.0;
+//  final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
 
   List<String> words = [];
   List<int> intervals = [];
@@ -124,13 +126,13 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  Future<void> setVolume(double v) async // v is between 0.0 and 100.0
+  void setVolume(double v) // v is between 0.0 and 100.0
   {
     v = v > 100.0 ? 100.0 : v;
     _mVolume1 = v;
     setState(() {});
     //await _mPlayer!.setVolume(v / 100, fadeDuration: Duration(milliseconds: 5000));
-    await myPlayer.setVolume(
+    myPlayer.setVolume(
       v / 100,
     );
   }
@@ -147,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       File outputFile = File('$filePath/$fileName');
       await myRecorder.startRecorder(
-          toFile: outputFile.path, codec: Codec.pcm16WAV, sampleRate: 44100);
+          toFile: outputFile.path, codec: Codec.pcm16WAV, sampleRate: 16000);
       print("START");
       setState(() {
         check = !check;
@@ -172,7 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
         encoding: AudioEncoding.LINEAR16,
         model: RecognitionModel.basic,
         enableWordTimeOffsets: true,
-        sampleRateHertz: 44100,
+        sampleRateHertz: 16000,
         languageCode: 'ko-KR');
     final audio = await _getAudioContent(filePath, fileName);
     final response = await speechToText.recognize(config, audio);
@@ -180,6 +182,8 @@ class _MyHomePageState extends State<MyHomePage> {
     words.clear();
     intervals.clear();
     volumes.clear();
+
+    String mute_string = '';
 
     for (var item in response.results) {
       for (var sentence in item.alternatives) {
@@ -191,22 +195,27 @@ class _MyHomePageState extends State<MyHomePage> {
             intervals.add(word.startTime.seconds.toInt()*MILLISECONDS + (word.startTime.nanos / (MILLISECONDS*MILLISECONDS)).toInt() + 300);
             volumes.add(VOLUME_DOWN);
 
-            intervals.add(word.endTime.seconds.toInt()*MILLISECONDS + (word.endTime.nanos / (MILLISECONDS*MILLISECONDS)).toInt() + 50);
+            intervals.add(word.endTime.seconds.toInt()*MILLISECONDS + (word.endTime.nanos / (MILLISECONDS*MILLISECONDS)).toInt() + 80);
             volumes.add(100.0);
+
+            mute_string = mute_string + 'between(t,${word.startTime.seconds.toInt() + word.startTime.nanos / (MILLISECONDS*MILLISECONDS*MILLISECONDS)},${word.endTime.seconds.toInt() + word.endTime.nanos / (MILLISECONDS*MILLISECONDS*MILLISECONDS)})+';
+
             print('startTime: ${word.startTime} endTime: ${word.endTime}');
           } else {
             words.add(word.word);
             words.add(word.word);
 
-            intervals.add(word.startTime.seconds.toInt()*MILLISECONDS + (word.startTime.nanos / (MILLISECONDS*MILLISECONDS)).toInt() + 300);
+            intervals.add(word.startTime.seconds.toInt()*MILLISECONDS + (word.startTime.nanos / (MILLISECONDS*MILLISECONDS)).toInt());
             volumes.add(100.0);
-            intervals.add(word.endTime.seconds.toInt()*MILLISECONDS + (word.endTime.nanos / (MILLISECONDS*MILLISECONDS)).toInt() + 50);
+            intervals.add(word.endTime.seconds.toInt()*MILLISECONDS + (word.endTime.nanos / (MILLISECONDS*MILLISECONDS)).toInt());
             volumes.add(100.0);
           }
           print(word.word);
         }
       }
     }
+
+//    _flutterFFmpeg.execute("-y -i $fileName -af volume=volume=0.03:enable='$mute_string' -c:v copy -c:a pcm_s16le -b:a 192K $fileName").then((rc) => print("FFmpeg process exited with rc $rc"));
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -237,7 +246,7 @@ class _MyHomePageState extends State<MyHomePage> {
         this.myPlayer.startPlayer(
             fromDataBuffer: dataBuffer,
             codec: Codec.pcm16WAV,
-            sampleRate: 44100,
+            sampleRate: 16000,
             whenFinished: () {
               print('Play finished');
               setState(() {});
@@ -245,11 +254,17 @@ class _MyHomePageState extends State<MyHomePage> {
             });
         print('intervals.length:${intervals.length}');
         for (int i = 0 ; i < intervals.length ; i++) {
-          print('[${i}] interval:${intervals[i]} volume: ${volumes[i]}');
-          Future.delayed(Duration(milliseconds: intervals[i]), () {})
+          if (i-1 >= 0 && volumes[i-1] != volumes[i]) {
+            print('[${i}] interval:${intervals[i]} volume: ${volumes[i]}');
+            Future.delayed(Duration(milliseconds: intervals[i]), () {})
+                .then((value) {
+              display_word = words[i];
+              setVolume(volumes[i]);
+            });
+          }
+          Future.delayed(Duration(milliseconds: intervals[intervals.length-1] + 500), () {})
               .then((value) {
-                setVolume(volumes[i]);
-                display_word = words[i];
+            display_word = '';
           });
         }
       } catch (e) {
